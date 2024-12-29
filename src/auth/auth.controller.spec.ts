@@ -1,16 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UserService } from '../user/user.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
 
+  const MockAuthService = {
+    signUp: jest.fn().mockImplementation((dto) => {
+      return {
+        id: 1,
+        ...dto,
+      };
+    }),
+
+    login: jest.fn().mockImplementation(() => {
+      return {
+        access_token: 'token',
+      };
+    }),
+  };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService, UserService],
-    }).compile();
+      providers: [AuthService],
+    })
+      .overrideProvider(AuthService)
+      .useValue(MockAuthService)
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
   });
@@ -20,16 +36,36 @@ describe('AuthController', () => {
   });
 
   it('should create new user', async () => {
-    const body = {
+    const dto = {
       email: 'test@gmail.com',
       password: 'test123',
       firstName: 'test',
       lastName: 'test',
       userType: 1,
     };
-    const result = await controller.signup(body);
+    const result = await controller.signup(dto);
 
+    expect(MockAuthService.signUp).toHaveBeenCalledWith(dto);
     expect(result).toBeDefined();
-    expect(result.email).toEqual(body.email);
+    expect(result).toEqual({
+      id: 1,
+      ...dto,
+    });
+  });
+
+  it('should return access token of login user', async () => {
+    const dto = {
+      email: 'test@gmail.com',
+      password: 'test123',
+    };
+
+    const response = {
+      access_token: 'token',
+    };
+
+    const result = await controller.login(dto);
+
+    expect(MockAuthService.login).toHaveBeenCalledWith(dto.email, dto.password);
+    expect(result).toEqual(response);
   });
 });

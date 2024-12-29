@@ -9,4 +9,9 @@ interface IUser {
   roleId: number;
 }
 
-export type { IUser };
+interface IRole {
+  role_id: number;
+  role_name: 'CLIENT' | 'FREELANCE';
+}
+
+export type { IUser, IRole };

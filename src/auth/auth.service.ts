@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { SignUpDto } from './auth.dto';
 import { UserService } from '../user/user.service';
-import { IUser } from 'src/interface/entities';
+import { IUser } from 'src/shared/interface/entities';
 
 @Injectable()
 export class AuthService {

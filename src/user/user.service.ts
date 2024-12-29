@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Role, User } from '../database/models';
-import { IUser } from 'src/interface/entities';
+import { IUser } from 'src/shared/interface/entities';
 @Injectable()
 export class UserService {
   constructor() {}
