@@ -9,7 +9,7 @@ describe('AuthService', () => {
 
   const mockUser = {
     id: 1,
-    userType: 1,
+    userType: 2,
     email: 'test@gmail.com',
     password: 'test123',
     firstName: 'test',
@@ -17,18 +17,13 @@ describe('AuthService', () => {
   };
 
   const MockUserService = {
-    findUserByEmail: jest.fn().mockImplementation(() => mockUser),
-    findRoleByRoleId: jest
+    findUserByEmail: jest
       .fn()
-      .mockImplementation((roleType) => mockRoles[roleType % 2]),
-    createUser: jest.fn().mockImplementation((user) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...createdUser } = user as typeof mockUser;
-      return {
-        createdUser,
-        hashPassword: 'testPassword',
-      };
-    }),
+      .mockImplementation((newUser) =>
+        newUser.email === mockUser.email ? mockUser : null,
+      ),
+    findRoleByRoleId: jest.fn().mockImplementation(() => mockRoles[0]),
+    createUser: jest.fn().mockImplementation(() => mockUser),
   };
 
   const MockJwtService = {};
@@ -37,8 +32,10 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [AuthService, UserService, JwtService],
     })
-      .overrideProvider([UserService, JwtService])
-      .useValue([MockUserService, MockJwtService])
+      .overrideProvider(UserService)
+      .useValue(MockUserService)
+      .overrideProvider(JwtService)
+      .useValue(MockJwtService)
       .compile();
 
     service = module.get<AuthService>(AuthService);
@@ -46,5 +43,15 @@ describe('AuthService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should signup the user successfully', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...dto } = mockUser;
+    const result = await service.signUp(dto);
+
+    expect(MockUserService.findUserByEmail).toHaveBeenCalledWith(dto.email);
+    expect(MockUserService.findRoleByRoleId).toHaveBeenCalledWith(dto.userType);
+    expect(result).toEqual(mockUser);
   });
 });

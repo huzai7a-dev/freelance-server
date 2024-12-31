@@ -4,6 +4,8 @@ import { AuthController } from './auth.controller';
 import { UserService } from 'src/user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Role, User } from '../database/models';
 
 @Module({
   imports: [
@@ -14,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
         signOptions: { expiresIn: '2 days' },
       }),
     }),
+    SequelizeModule.forFeature([User, Role]),
   ],
   controllers: [AuthController],
   providers: [AuthService, UserService],
