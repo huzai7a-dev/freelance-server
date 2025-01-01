@@ -42,7 +42,6 @@ export class AuthService {
         roleId: role.role_id,
       });
 
-    console.log(user, 'userrrr');
     return user;
   }
 
